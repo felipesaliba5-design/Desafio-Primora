@@ -244,7 +244,7 @@
 [data-theme="light"] h1,
 [data-theme="light"] h2,
 [data-theme="light"] h3,
-[data-theme="light"] h4,
+[data-theme="light"] h4:not(.exec-pillar-question),
 [data-theme="light"] .flat-card-title,
 [data-theme="light"] .kpi-ledger-number,
 [data-theme="light"] .units-table-unit-name,
@@ -255,9 +255,8 @@
   color: #0f172a;
 }
 
-[data-theme="light"] p,
-[data-theme="light"] span,
-[data-theme="light"] .exec-pillar-desc,
+[data-theme="light"] p:not(.exec-pillar-desc),
+[data-theme="light"] span:not(.exec-eyebrow-mono):not(.exec-pill-tag):not(.exec-item-title):not(.exec-item-sub):not(.exec-item-metric-val):not(.exec-item-delta),
 [data-theme="light"] .minimal-timeline-desc,
 [data-theme="light"] .account-ledger-label,
 [data-theme="light"] .flat-section-eyebrow,
@@ -265,8 +264,27 @@
   font-weight: 450;
 }
 
-[data-theme="light"] em {
+[data-theme="light"] em:not(.exec-pillar-question em) {
   font-weight: 500;
+}
+
+/* Proteção estrita de contraste: todas as letras em branco nos blocos executivos azuis/cromáticos */
+.exec-pillar--blue-gleam,
+.exec-pillar--deep-blue,
+.exec-pillar--silver-inverted,
+[data-theme="light"] .exec-pillar--blue-gleam,
+[data-theme="light"] .exec-pillar--deep-blue,
+[data-theme="light"] .exec-pillar--silver-inverted,
+[data-theme="light"] .exec-pillar--blue-gleam *,
+[data-theme="light"] .exec-pillar--deep-blue *,
+[data-theme="light"] .exec-pillar--silver-inverted * {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .exec-pillar .exec-action-link,
+[data-theme="light"] .exec-pillar .exec-action-link--dark {
+  background: #ffffff !important;
+  color: #0f172a !important;
 }
 
 [data-theme="light"] th {
@@ -284,11 +302,23 @@
    ========================================================================== */
 
 .app-shell {
+  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
+}
+
+/* Ergonomia Tátil: Neutralização de efeitos :hover persistentes em telas de toque */
+@media (hover: none) and (pointer: coarse) {
+  .flat-card:hover,
+  .client-tab-item:hover,
+  .client-mini-card:hover,
+  .kpi-ant-card:hover {
+    transform: none !important;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -307,7 +337,12 @@
 
 @media (max-width: 1023px) {
   .app-main-content {
-    padding: 20px 16px 84px 16px;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: calc(62px + env(safe-area-inset-top, 0px)) 8px calc(80px + env(safe-area-inset-bottom, 12px)) 8px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
   }
 }
 
@@ -574,7 +609,12 @@
 
 @media (max-width: 767px) {
   .flat-card {
-    padding: 20px 18px;
+    padding: 16px 12px !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 }
 
@@ -788,6 +828,22 @@
   color: var(--text-muted);
 }
 
+.badge-novo-cliente {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(0, 179, 221, 0.16);
+  border: 1px solid rgba(0, 179, 221, 0.45);
+  color: var(--brand-cyan, #00b3dd);
+  font-family: var(--font-roboto-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 /* ==========================================================================
    FOOTER (Abyss #090a0b)
    ========================================================================== */
@@ -798,6 +854,12 @@
   padding: 32px 24px;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+@media (max-width: 1023px) {
+  .app-footer {
+    padding: 24px 16px calc(88px + env(safe-area-inset-bottom, 12px)) 16px;
+  }
 }
 
 .app-footer-inner {
@@ -814,4 +876,12 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+@media (max-width: 767px) {
+  .app-footer-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }

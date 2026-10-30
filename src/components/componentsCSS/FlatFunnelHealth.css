@@ -46,11 +46,12 @@
 }
 
 .donut-center-value {
-  font-family: var(--font-lyon-display);
-  font-size: 32px;
-  font-weight: 300;
+  font-family: var(--font-suisse-intl);
+  font-size: 28px;
+  font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
   line-height: 1;
 }
 
@@ -183,12 +184,13 @@
 }
 
 .funnel-mini-stat-val {
-  font-family: var(--font-lyon-display);
-  font-size: 24px;
-  font-weight: 300;
+  font-family: var(--font-suisse-intl);
+  font-size: 20px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
   color: var(--text-primary);
   margin-top: 4px;
   display: block;
-  line-height: 1;
+  line-height: 1.2;
 }

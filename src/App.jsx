@@ -6,7 +6,6 @@ import datasetLocal from './data/dataset_painel_multitenant.json';
 import { THEME_TOKENS } from './utils/themeTokens';
 
 import TopBar from './components/TopBar';
-import AcademicBanner from './components/AcademicBanner';
 import VisaoGeral from './pages/VisaoGeral';
 import Comparativo from './pages/Comparativo';
 import HistoricoClientes from './pages/HistoricoClientes';
@@ -77,8 +76,33 @@ export default function App() {
   };
 
   const dynamicDataset = React.useMemo(() => {
+    const baseClientIds = new Set((datasetLocal.clientes || []).map((c) => c.id));
+    const addedClients = (clientes || []).filter((c) => !baseClientIds.has(c.id));
+
+    const enrichedTenants = (datasetLocal.tenants || []).map((t) => {
+      const extraForThisTenant = addedClients.filter((c) => c.tenantId === t.id);
+      if (extraForThisTenant.length === 0) return t;
+
+      const saudeUpdated = { ...(t.saudeCarteira || { saudavel: 0, atencao: 0, risco: 0, critico: 0 }) };
+      extraForThisTenant.forEach((c) => {
+        const status = (c.statusSaude || '').toLowerCase();
+        if (status.includes('saud')) saudeUpdated.saudavel = (saudeUpdated.saudavel || 0) + 1;
+        else if (status.includes('aten')) saudeUpdated.atencao = (saudeUpdated.atencao || 0) + 1;
+        else if (status.includes('crit')) saudeUpdated.critico = (saudeUpdated.critico || 0) + 1;
+        else saudeUpdated.risco = (saudeUpdated.risco || 0) + 1;
+      });
+
+      return {
+        ...t,
+        carteiraTotalClientes: (t.carteiraTotalClientes || 0) + extraForThisTenant.length,
+        saudeCarteira: saudeUpdated,
+        novosClientesAdicionados: extraForThisTenant.length
+      };
+    });
+
     return {
       ...datasetLocal,
+      tenants: enrichedTenants,
       clientes
     };
   }, [clientes]);
@@ -192,6 +216,10 @@ export default function App() {
               selectedTenantId={selectedTenantId}
               onSelectTenant={setSelectedTenantId}
               themeTokens={activeTokens}
+              onNavigateTab={setCurrentTab}
+              onAddCliente={handleAddCliente}
+              onUpdateCliente={handleUpdateCliente}
+              onDeleteCliente={handleDeleteCliente}
             />
           )}
 
@@ -211,15 +239,13 @@ export default function App() {
 
         <footer className="app-footer">
           <div className="app-footer-inner">
-            <AcademicBanner />
-
             <div className="app-footer-row">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <img
                   src="/primora-logo-white.webp"
                   alt="Primora"
-                  className="primora-brand-img"
-                  style={{ height: 18, width: 'auto', display: 'block' }}
+                  className="primora-brand-img footer-primora-logo"
+                  style={{ height: 32, width: 'auto', display: 'block' }}
                 />
                 <span>·</span>
                 <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>

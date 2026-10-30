@@ -57,9 +57,13 @@
   .kpi-ledger-cell {
     border-right: none !important;
     border-bottom: 1px solid var(--border-default);
+    padding: 16px 16px;
   }
   .kpi-ledger-cell:last-child {
     border-bottom: none;
+  }
+  .kpi-ledger-number {
+    font-size: clamp(32px, 8vw, 40px);
   }
 }
 
@@ -86,13 +90,14 @@
 }
 
 .kpi-ledger-number {
-  font-family: var(--font-lyon-display);
-  font-size: 46px;
-  font-weight: 300;
+  font-family: var(--font-suisse-intl);
+  font-size: 42px;
+  font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
   letter-spacing: -0.02em;
-  line-height: 0.95;
+  line-height: 1;
 }
 
 .kpi-ledger-sub {
@@ -178,8 +183,25 @@
   }
 }
 
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 4px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+
+.table-responsive-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
+}
+
 .minimal-units-table {
   width: 100%;
+  min-width: 520px;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -189,18 +211,20 @@
   font-size: 10px;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--text-secondary);
   text-align: left;
-  padding: 10px 10px;
+  padding: 10px 8px;
   border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
 }
 
 .minimal-units-table td {
-  padding: 12px 10px;
+  padding: 12px 8px;
   border-bottom: 1px solid var(--border-subtle);
   font-variant-numeric: tabular-nums;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .minimal-units-table tbody tr {
@@ -235,6 +259,150 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .compact-clients-strip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .clients-strip-pills {
+    display: flex;
+    flex-wrap: wrap !important;
+    gap: 8px;
+    align-items: center;
+  }
+  .compact-client-pill {
+    flex: 0 1 auto;
+  }
+  .desktop-only-table {
+    display: none !important;
+  }
+  .mobile-only-cards {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .desktop-only-table {
+    display: block !important;
+  }
+  .mobile-only-cards {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   MOBILE-FIRST REGIONAL CARDS (< 768px) — ZERO INFORMAÇÃO CORTADA
+   ========================================================================== */
+.mobile-units-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.mobile-unit-card {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-unit-card:hover,
+.mobile-unit-card:active {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-primary-soft);
+}
+
+.mobile-unit-card--active {
+  border-color: var(--brand-primary) !important;
+  background-color: var(--brand-primary-soft) !important;
+  box-shadow: 0 0 0 1px var(--brand-primary);
+}
+
+.mobile-unit-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mobile-unit-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mobile-unit-name {
+  font-family: var(--font-suisse-intl);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mobile-unit-matriz-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--brand-primary);
+  background: var(--brand-primary-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.mobile-unit-porte-badge {
+  font-family: var(--font-roboto-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.mobile-unit-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background-color: var(--bg-surface);
+  border-radius: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+}
+
+.mobile-unit-metric-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mobile-unit-metric-label {
+  font-family: var(--font-roboto-mono);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mobile-unit-metric-num {
+  font-family: var(--font-suisse-intl);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.mobile-unit-metric-sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-secondary);
 }
 
 .compact-client-pill {
@@ -286,5 +454,53 @@
 
 .unidades-grid-section {
   background-color: transparent;
+}
+
+@media (max-width: 767px) {
+  .visao-geral-container {
+    width: 100% !important;
+    gap: 14px !important;
+  }
+
+  .kpi-ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    row-gap: 10px !important;
+  }
+
+  .kpi-ant-row > .ant-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  .kpi-ant-card {
+    width: 100% !important;
+    border-radius: 12px !important;
+  }
+
+  .kpi-ant-card .ant-card-body {
+    padding: 14px 14px !important;
+  }
+
+  .summary-middle-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  .bottom-summary-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    width: 100% !important;
+  }
+
+  .minimal-units-table th,
+  .minimal-units-table td {
+    padding: 10px 6px !important;
+    font-size: 12px !important;
+  }
 }
 

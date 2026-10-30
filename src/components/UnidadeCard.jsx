@@ -106,11 +106,6 @@ export default function UnidadeCard({
           </div>
         </div>
       }
-      extra={
-        <span className="geo-badge geo-badge--ficticio">
-          Dado Fictício
-        </span>
-      }
     >
       {/* Grade de Estatísticas via Ant Design Statistic */}
       <Row gutter={[16, 16]} className="unidade-card-stats-row">

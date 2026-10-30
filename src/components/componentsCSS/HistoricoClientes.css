@@ -11,13 +11,25 @@
 /* Seletor Horizontal de Contas (16px Cards) */
 .client-tabs-bar {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 14px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   .client-tabs-bar {
     grid-template-columns: 1fr;
+    gap: 10px;
+    width: 100%;
+  }
+  .client-tab-item {
+    width: 100% !important;
+    padding: 14px 14px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .clientes-container {
+    width: 100% !important;
+    gap: 14px !important;
   }
 }
 
@@ -70,12 +82,13 @@
 }
 
 .client-tab-score {
-  font-family: var(--font-lyon-display);
-  font-size: 28px;
-  font-weight: 300;
+  font-family: var(--font-suisse-intl);
+  font-size: 24px;
+  font-weight: 700;
   line-height: 1;
   display: block;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 .account-code-sub {
@@ -103,7 +116,11 @@
 
 @media (max-width: 575px) {
   .account-ledger-strip {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .account-ledger-cell {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-default);
   }
 }
 
@@ -317,6 +334,48 @@
 
   .client-crud-status {
     justify-content: space-between;
+  }
+}
+
+/* ==========================================================================
+   AÇÕES DE GESTÃO DA CONTA (FIM DA PÁGINA)
+   ========================================================================== */
+.client-footer-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.client-footer-actions-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.client-footer-account-title {
+  font-family: var(--font-suisse-intl);
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.client-footer-account-sub {
+  font-family: var(--font-roboto-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 767px) {
+  .client-footer-actions-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
   }
 }
 

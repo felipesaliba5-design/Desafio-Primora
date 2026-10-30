@@ -177,13 +177,13 @@ export default function ExecutiveSummaryStrip({
         <article className="exec-pillar exec-pillar--silver-inverted">
           <div className="exec-pillar-card-top">
             <div className="exec-pillar-top">
-              <span className="exec-eyebrow-mono exec-eyebrow-mono--dark">03 · BENCHMARK INTERNO</span>
-              <span className="exec-pill-tag exec-pill-tag--dark">OPERAÇÃO ESTÁVEL</span>
+              <span className="exec-eyebrow-mono">03 · BENCHMARK INTERNO</span>
+              <span className="exec-pill-tag">OPERAÇÃO ESTÁVEL</span>
             </div>
-            <h4 className="exec-pillar-question exec-pillar-question--dark">
+            <h4 className="exec-pillar-question">
               <em>Referência</em> de conversão e escala
             </h4>
-            <p className="exec-pillar-desc exec-pillar-desc--dark">
+            <p className="exec-pillar-desc">
               Operações de alta eficiência em fechamento de funil comercial e risco sob controle.
             </p>
           </div>
@@ -207,22 +207,22 @@ export default function ExecutiveSummaryStrip({
                       onSelectTenant(isSelected ? 'todos' : u.id);
                     }
                   }}
-                  className={`exec-item-row exec-item-row--on-silver ${
-                    isSelected ? 'exec-item-row--selected-silver' : ''
+                  className={`exec-item-row exec-item-row--on-blue ${
+                    isSelected ? 'exec-item-row--selected' : ''
                   }`}
                   title="Clique para filtrar esta unidade referência"
                 >
                   <div className="exec-item-main">
-                    <span className="exec-item-title exec-item-title--dark">{u.nome}</span>
-                    <span className="exec-item-sub exec-item-sub--dark">
+                    <span className="exec-item-title">{u.nome}</span>
+                    <span className="exec-item-sub">
                       {formatarPercentual(taxaSaudavel)} saudável · Risco {formatarPercentual(u.taxaRiscoProporcional)}
                     </span>
                   </div>
                   <div className="exec-item-metric">
-                    <span className="exec-item-metric-val exec-item-metric-val--dark">
+                    <span className="exec-item-metric-val">
                       Funil {formatarPercentual(u.taxaConversaoFunil)}
                     </span>
-                    <span className="exec-item-delta exec-item-delta--dark">
+                    <span className="exec-item-delta">
                       ▲ +{delta} pts engaj.
                     </span>
                   </div>
@@ -231,12 +231,12 @@ export default function ExecutiveSummaryStrip({
             })}
           </div>
 
-          <div className="exec-pillar-footer exec-pillar-footer--dark">
+          <div className="exec-pillar-footer">
             <span>Benchmark da rede</span>
             {selectedTenantId !== 'todos' ? (
               <button
                 type="button"
-                className="exec-action-link exec-action-link--dark"
+                className="exec-action-link"
                 onClick={() => onSelectTenant('todos')}
               >
                 Resetar filtro &rarr;
@@ -244,7 +244,7 @@ export default function ExecutiveSummaryStrip({
             ) : (
               <button
                 type="button"
-                className="exec-action-link exec-action-link--dark"
+                className="exec-action-link"
                 onClick={() => onSelectTenant('tenant-sul')}
               >
                 Filtrar benchmark &rarr;
@@ -252,20 +252,6 @@ export default function ExecutiveSummaryStrip({
             )}
           </div>
         </article>
-      </div>
-
-      {/* Credenciais do Ecossistema (DESIGN.md Social Proof sintetizado) */}
-      <div className="exec-laurel-footer-row" aria-label="Credenciais do ecossistema">
-        <div className="exec-laurel-item">
-          <span aria-hidden="true" style={{ fontSize: 14, opacity: 0.7 }}>&#10087;</span>
-          <span className="exec-laurel-text">Primora Soluções · Arquitetura Multi-Tenant</span>
-          <span aria-hidden="true" style={{ fontSize: 14, opacity: 0.7 }}>&#10087;</span>
-        </div>
-        <div className="exec-laurel-item">
-          <span aria-hidden="true" style={{ fontSize: 14, opacity: 0.7 }}>&#10087;</span>
-          <span className="exec-laurel-text">Distribuidora Vetor · 2.250 Contas Ativas Monitoradas</span>
-          <span aria-hidden="true" style={{ fontSize: 14, opacity: 0.7 }}>&#10087;</span>
-        </div>
       </div>
     </section>
   );

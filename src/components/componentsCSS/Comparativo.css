@@ -6,6 +6,13 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .comparativo-container {
+    gap: 14px;
+  }
 }
 
 .comparativo-top-charts-grid {
@@ -94,6 +101,209 @@
 /* Destaque de Linha Selecionada na Tabela AntD */
 .comparativo-row-focused td {
   background-color: var(--brand-primary-soft) !important;
+}
+
+/* ==========================================================================
+   CARTEIRA REGIONAL & CLIENTES ADICIONADOS
+   ========================================================================== */
+.comparativo-clients-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.comparativo-clients-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.badge-novo-cliente {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background-color: rgba(0, 179, 221, 0.16);
+  border: 1px solid rgba(0, 179, 221, 0.45);
+  color: var(--brand-cyan, #00b3dd);
+  font-family: var(--font-roboto-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.comparativo-clients-controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+}
+
+@media (max-width: 767px) {
+  .comparativo-clients-controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.client-mini-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 575px) {
+  .client-mini-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.client-mini-card {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.18s ease;
+  position: relative;
+}
+
+.client-mini-card:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--bg-subtle);
+  transform: translateY(-2px);
+}
+
+.client-mini-card--novo {
+  border-left: 3px solid var(--brand-cyan, #00b3dd);
+  background: linear-gradient(135deg, rgba(0, 179, 221, 0.05) 0%, var(--bg-elevated) 40%);
+}
+
+.client-mini-code {
+  font-family: var(--font-roboto-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.client-mini-name {
+  font-family: var(--font-suisse-intl);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 3px 0 2px 0;
+  line-height: 1.25;
+}
+
+.client-mini-segment {
+  font-family: var(--font-suisse-intl);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.client-mini-score-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.client-mini-score-val {
+  font-family: var(--font-suisse-intl);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.client-mini-score-sub {
+  font-family: var(--font-roboto-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.client-mini-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.client-mini-regional-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-roboto-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.client-mini-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.client-mini-finance-label {
+  display: block;
+  font-family: var(--font-roboto-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.client-mini-finance-val {
+  font-family: var(--font-suisse-intl);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.client-mini-inspect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 5px 10px;
+  color: var(--text-primary);
+  font-family: var(--font-suisse-intl);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.client-mini-inspect-btn:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  background-color: var(--brand-primary-soft);
 }
 
 /* Seção de Fundamentação Técnica Colapsável */

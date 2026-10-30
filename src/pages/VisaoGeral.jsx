@@ -301,15 +301,11 @@ export default function VisaoGeral({
 
       {/* BLOCO 2: CARTÕES REUTILIZÁVEIS DAS QUATRO UNIDADES (ENTREGA OBRIGATÓRIA DA SPRINT 2) */}
       <section className="unidades-grid-section" aria-labelledby="unidades-cards-heading" style={{ marginBottom: 24 }}>
-        <div style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <div>
-            <span className="flat-section-eyebrow">COMPONENTES REUTILIZÁVEIS REACT · SPRINT 2</span>
-            <Title level={4} id="unidades-cards-heading" style={{ margin: '2px 0 0', color: 'var(--text-primary)' }}>
-              Unidades Regionais (Dataset Fictício)
+            <Title level={4} id="unidades-cards-heading" style={{ margin: 0, color: 'var(--text-primary)' }}>
+              Unidades Regionais
             </Title>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              Componentes reutilizáveis <Text code>UnidadeCard</Text> recebendo dados estáticos via props, integrados ao padrão Origin Gallery.
-            </Text>
           </div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span className="geo-badge geo-badge--brand">
@@ -355,71 +351,139 @@ export default function VisaoGeral({
             </button>
           </div>
 
-          <table className="minimal-units-table">
-            <thead>
-              <tr>
-                <th>Unidade</th>
-                <th>Porte</th>
-                <th className="num-col">Carteira</th>
-                <th className="num-col">Risco Prop.</th>
-                <th className="num-col">Funil</th>
-                <th className="num-col">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {unidadesClassificadas.map((u) => {
-                const active = selectedTenantId === u.id;
-                const sem = getRiskSemanticTokens(u.taxaRiscoProporcional, themeTokens);
-                return (
-                  <tr
-                    key={u.id}
-                    className={active ? 'row-selected' : ''}
-                    tabIndex={0}
-                    role="button"
-                    aria-pressed={active}
-                    onClick={() => onSelectTenant(active ? 'todos' : u.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onSelectTenant(active ? 'todos' : u.id);
-                      }
-                    }}
-                    title="Clique ou pressione Enter para filtrar esta unidade"
-                  >
-                    <td>
-                      <span className="units-table-unit-name">
+          {/* TABELA DESKTOP (>= 768px): Estrutura clássica de 6 colunas */}
+          <div className="table-responsive-wrapper desktop-only-table" tabIndex={0} role="region" aria-label="Tabela de Desempenho por Regional">
+            <table className="minimal-units-table">
+              <thead>
+                <tr>
+                  <th>Unidade</th>
+                  <th>Porte</th>
+                  <th className="num-col">Carteira</th>
+                  <th className="num-col">Risco Prop.</th>
+                  <th className="num-col">Funil</th>
+                  <th className="num-col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unidadesClassificadas.map((u) => {
+                  const active = selectedTenantId === u.id;
+                  const sem = getRiskSemanticTokens(u.taxaRiscoProporcional, themeTokens);
+                  return (
+                    <tr
+                      key={u.id}
+                      className={active ? 'row-selected' : ''}
+                      tabIndex={0}
+                      role="button"
+                      aria-pressed={active}
+                      onClick={() => onSelectTenant(active ? 'todos' : u.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onSelectTenant(active ? 'todos' : u.id);
+                        }
+                      }}
+                      title="Clique ou pressione Enter para filtrar esta unidade"
+                    >
+                      <td>
+                        <span className="units-table-unit-name">
+                          {u.nome.replace('Unidade ', '')}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="units-table-unit-porte">{u.porte}</span>
+                      </td>
+                      <td className="num-col">{formatarNumero(u.carteiraTotalClientes)}</td>
+                      <td className="num-col" style={{ fontWeight: 600, color: sem.color }}>
+                        {formatarPercentual(u.taxaRiscoProporcional)}
+                        <span className="units-table-risk-sub">
+                          ({u.riscoAbsolutoCalculado})
+                        </span>
+                      </td>
+                      <td className="num-col">{formatarPercentual(u.taxaConversaoFunil)}</td>
+                      <td className="num-col">
+                        <span
+                          className={`geo-badge ${
+                            u.taxaRiscoProporcional >= 20
+                              ? 'geo-badge--critical'
+                              : u.taxaRiscoProporcional >= 10
+                              ? 'geo-badge--warning'
+                              : 'geo-badge--success'
+                          }`}
+                        >
+                          {sem.symbol} {sem.level}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* VISÃO MOBILE (< 768px): CARDS ESTRUTURADOS COM 100% DAS INFORMAÇÕES VISÍVEIS SEM NENHUM CORTE */}
+          <div className="mobile-units-list mobile-only-cards" role="region" aria-label="Desempenho por Regional Mobile">
+            {unidadesClassificadas.map((u) => {
+              const active = selectedTenantId === u.id;
+              const sem = getRiskSemanticTokens(u.taxaRiscoProporcional, themeTokens);
+              return (
+                <div
+                  key={u.id}
+                  className={`mobile-unit-card ${active ? 'mobile-unit-card--active' : ''}`}
+                  onClick={() => onSelectTenant(active ? 'todos' : u.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onSelectTenant(active ? 'todos' : u.id);
+                    }
+                  }}
+                  title="Toque para filtrar esta unidade"
+                >
+                  <div className="mobile-unit-card-header">
+                    <div className="mobile-unit-title-group">
+                      <span className="mobile-unit-name">
                         {u.nome.replace('Unidade ', '')}
                       </span>
-                    </td>
-                    <td>
-                      <span className="units-table-unit-porte">{u.porte}</span>
-                    </td>
-                    <td className="num-col">{formatarNumero(u.carteiraTotalClientes)}</td>
-                    <td className="num-col" style={{ fontWeight: 600, color: sem.color }}>
-                      {formatarPercentual(u.taxaRiscoProporcional)}
-                      <span className="units-table-risk-sub">
-                        ({u.riscoAbsolutoCalculado})
+                      {u.isMatriz && (
+                        <span className="mobile-unit-matriz-tag">Matriz</span>
+                      )}
+                      <span className="mobile-unit-porte-badge">{u.porte}</span>
+                    </div>
+                    <span
+                      className={`geo-badge ${
+                        u.taxaRiscoProporcional >= 20
+                          ? 'geo-badge--critical'
+                          : u.taxaRiscoProporcional >= 10
+                          ? 'geo-badge--warning'
+                          : 'geo-badge--success'
+                      }`}
+                    >
+                      {sem.symbol} {sem.level}
+                    </span>
+                  </div>
+
+                  <div className="mobile-unit-metrics-row">
+                    <div className="mobile-unit-metric-box">
+                      <span className="mobile-unit-metric-label">CARTEIRA</span>
+                      <span className="mobile-unit-metric-num">{formatarNumero(u.carteiraTotalClientes)}</span>
+                    </div>
+                    <div className="mobile-unit-metric-box">
+                      <span className="mobile-unit-metric-label">RISCO PROP.</span>
+                      <span className="mobile-unit-metric-num" style={{ color: sem.color, fontWeight: 700 }}>
+                        {formatarPercentual(u.taxaRiscoProporcional)}
+                        <span className="mobile-unit-metric-sub"> ({u.riscoAbsolutoCalculado})</span>
                       </span>
-                    </td>
-                    <td className="num-col">{formatarPercentual(u.taxaConversaoFunil)}</td>
-                    <td className="num-col">
-                      <span
-                        className={`geo-badge ${
-                          u.taxaRiscoProporcional >= 20
-                            ? 'geo-badge--critical'
-                            : u.taxaRiscoProporcional >= 10
-                            ? 'geo-badge--warning'
-                            : 'geo-badge--success'
-                        }`}
-                      >
-                        {sem.symbol} {sem.level}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </div>
+                    <div className="mobile-unit-metric-box">
+                      <span className="mobile-unit-metric-label">FUNIL</span>
+                      <span className="mobile-unit-metric-num">{formatarPercentual(u.taxaConversaoFunil)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {/* Atalho Rápido para Contas Prioritárias (Jornada de Clientes) */}
           <div className="compact-clients-strip">
@@ -481,7 +545,7 @@ export default function VisaoGeral({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={estatisticasAgregadas.tendencias}
-                margin={{ top: 8, right: 16, left: -20, bottom: 0 }}
+                margin={{ top: 8, right: isMobile ? 8 : 16, left: isMobile ? -24 : -20, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="2 2" stroke={themeTokens.chartGrid} />
                 <XAxis
@@ -508,13 +572,18 @@ export default function VisaoGeral({
                 />
                 <Legend
                   verticalAlign="top"
-                  height={28}
-                  wrapperStyle={{ fontSize: 11, fontWeight: 500, fontFamily: 'var(--font-roboto-mono)' }}
+                  height={isMobile ? 34 : 28}
+                  wrapperStyle={{
+                    fontSize: isMobile ? 10 : 11,
+                    fontWeight: 500,
+                    fontFamily: 'var(--font-roboto-mono)',
+                    paddingBottom: 4
+                  }}
                 />
                 <Line
                   type="monotone"
                   dataKey="engajamento"
-                  name="Engajamento (%)"
+                  name={isMobile ? 'Engajamento' : 'Engajamento (%)'}
                   stroke={themeTokens.brandPrimary}
                   strokeWidth={2.5}
                   dot={{ r: 4, fill: themeTokens.brandPrimary, strokeWidth: 0 }}
@@ -524,7 +593,7 @@ export default function VisaoGeral({
                 <Line
                   type="monotone"
                   dataKey="sucessoFunil"
-                  name="Sucesso Funil (%)"
+                  name={isMobile ? 'Funil' : 'Sucesso Funil (%)'}
                   stroke={themeTokens.brandCyan}
                   strokeWidth={2.5}
                   dot={{ r: 4, fill: themeTokens.brandCyan, strokeWidth: 0 }}

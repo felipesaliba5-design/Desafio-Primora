@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Radio, Tooltip, Typography } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { Table, Radio, Tooltip, Typography, Button, Modal, Form, Input, InputNumber, Select, Tag, Empty, message } from 'antd';
+import { InfoCircleOutlined, PlusOutlined, UserOutlined, ArrowRightOutlined, CheckCircleOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import {
   ResponsiveContainer,
   BarChart,
@@ -29,13 +29,25 @@ export default function Comparativo({
   isMobile = false,
   selectedTenantId = 'todos',
   onSelectTenant,
-  themeTokens
+  themeTokens,
+  onNavigateTab,
+  onAddCliente,
+  onUpdateCliente,
+  onDeleteCliente
 }) {
   const [tipoGrafico, setTipoGrafico] = useState('composto');
   const [modoDonut, setModoDonut] = useState('risco'); // 'risco' ou 'carteira'
   const [showRationale, setShowRationale] = useState(false);
+  const [modalNovoClienteOpen, setModalNovoClienteOpen] = useState(false);
+  const [filtroTipoClientes, setFiltroTipoClientes] = useState('todos'); // 'todos', 'novos', 'risco'
+  const [buscaCliente, setBuscaCliente] = useState('');
+  const [form] = Form.useForm();
 
   const tenants = dataset?.tenants || [];
+  const todosClientes = dataset?.clientes || [];
+
+  const baseClientIds = useMemo(() => new Set(['CLI-001', 'CLI-002', 'CLI-003']), []);
+  const isClienteNovo = (cli) => !baseClientIds.has(cli.id) || cli.isNovo;
 
   const dadosClassificados = useMemo(() => {
     return classificarUnidadesPorRisco(tenants);
@@ -272,6 +284,88 @@ export default function Comparativo({
       sucessoFunil: d.taxaConversaoFunil
     }));
   }, [dadosClassificados, isMobile]);
+
+  const handleAbrirModalNovoCliente = () => {
+    form.resetFields();
+    form.setFieldsValue({
+      tenantId: selectedTenantId !== 'todos' ? selectedTenantId : 'tenant-sudeste',
+      segmento: 'Supermercado Regional',
+      ticketMedio: 35000,
+      tempoContratoMeses: 12,
+      scoreSaudeAtual: 80,
+      statusSaude: 'Saudável'
+    });
+    setModalNovoClienteOpen(true);
+  };
+
+  const handleSalvarNovoCliente = (values) => {
+    const tenantObj = tenants.find((t) => t.id === values.tenantId);
+    const score = Number(values.scoreSaudeAtual || 80);
+    const novoId = `CLI-${Date.now().toString().slice(-4)}`;
+
+    const novo = {
+      id: novoId,
+      nome: values.nome,
+      tenantId: values.tenantId,
+      unidadeNome: tenantObj?.nome || 'Unidade Regional',
+      segmento: values.segmento,
+      statusSaude: values.statusSaude || 'Saudável',
+      scoreSaudeAtual: score,
+      tempoContratoMeses: Number(values.tempoContratoMeses || 12),
+      ticketMedioMensal: `R$ ${Number(values.ticketMedio || 35000).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      isNovo: true,
+      historicoScore: [
+        { periodo: 'Mai/2026', score: Math.max(20, score - 6) },
+        { periodo: 'Jun/2026', score: Math.max(25, score - 4) },
+        { periodo: 'Jul/2026', score: Math.max(25, score - 3) },
+        { periodo: 'Ago/2026', score: Math.max(25, score - 2) },
+        { periodo: 'Set/2026', score: Math.max(30, score - 1) },
+        { periodo: 'Out/2026', score }
+      ],
+      eventos: [
+        {
+          id: `EVT-${Date.now().toString().slice(-3)}`,
+          data: new Date().toISOString(),
+          tipo: 'Cadastro de Conta',
+          categoria: 'sucesso',
+          descricao: `Conta integrada na ${tenantObj?.nome || 'Regional'} via tela comparativa regional.`
+        }
+      ]
+    };
+
+    if (onAddCliente) {
+      onAddCliente(novo);
+    }
+    setModalNovoClienteOpen(false);
+    form.resetFields();
+    message.success(`Cliente "${novo.nome}" cadastrado com sucesso na ${tenantObj?.nome || 'Regional'}!`);
+  };
+
+  const clientesFiltrados = useMemo(() => {
+    return todosClientes.filter((cli) => {
+      if (selectedTenantId !== 'todos' && cli.tenantId !== selectedTenantId) {
+        return false;
+      }
+      if (buscaCliente.trim()) {
+        const query = buscaCliente.toLowerCase();
+        const matchNome = (cli.nome || '').toLowerCase().includes(query);
+        const matchId = (cli.id || '').toLowerCase().includes(query);
+        const matchSeg = (cli.segmento || '').toLowerCase().includes(query);
+        if (!matchNome && !matchId && !matchSeg) return false;
+      }
+      if (filtroTipoClientes === 'novos') {
+        return isClienteNovo(cli);
+      }
+      if (filtroTipoClientes === 'risco') {
+        return cli.statusSaude === 'Risco' || cli.statusSaude === 'Crítico';
+      }
+      return true;
+    });
+  }, [todosClientes, selectedTenantId, buscaCliente, filtroTipoClientes, baseClientIds]);
+
+  const totalNovosGeral = useMemo(() => {
+    return todosClientes.filter(isClienteNovo).length;
+  }, [todosClientes, baseClientIds]);
 
   return (
     <div className="comparativo-container">
@@ -534,18 +628,11 @@ export default function Comparativo({
       <section className="flat-card" aria-labelledby="comparativo-table-heading">
         <div className="flat-card-header">
           <div>
-            <span className="flat-section-eyebrow">ESTRUTURA DE TABELA COMPACTA · SPRINT 2</span>
             <h2 id="comparativo-table-heading" className="flat-card-title">
               Matriz Comparativa de Indicadores por Regional
             </h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span className="geo-badge geo-badge--cyan">
-              Ant Design Table
-            </span>
-            <span className="geo-badge">
-              Dados Fictícios
-            </span>
             {selectedTenantId !== 'todos' && (
               <button
                 type="button"
@@ -587,7 +674,277 @@ export default function Comparativo({
         </div>
       </section>
 
-      {/* 3. FUNDAMENTAÇÃO METODOLÓGICA COLAPSÁVEL (Inicia recolhida para manter minimalismo) */}
+      {/* 3. CARTEIRA DE CLIENTES REGIONAL & NOVOS CLIENTES ADICIONADOS (INTEGRAÇÃO EM TEMPO REAL) */}
+      <section className="flat-card comparativo-clients-section" aria-labelledby="regional-clients-heading">
+        <div className="comparativo-clients-header">
+          <div>
+            {totalNovosGeral > 0 && (
+              <div style={{ marginBottom: 6 }}>
+                <span className="badge-novo-cliente">
+                  <ThunderboltOutlined /> {totalNovosGeral} {totalNovosGeral === 1 ? 'Novo Cliente Adicionado' : 'Novos Clientes Adicionados'}
+                </span>
+              </div>
+            )}
+            <h2 id="regional-clients-heading" className="flat-card-title">
+              {selectedTenantId === 'todos'
+                ? 'Clientes das Unidades Regionais'
+                : `Clientes Vinculados: ${tenants.find((t) => t.id === selectedTenantId)?.nome || 'Regional'}`}
+            </h2>
+            <p style={{ margin: '4px 0 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>
+              {selectedTenantId === 'todos'
+                ? 'Novos clientes cadastrados aparecem aqui em tempo real e atualizam os indicadores de cada regional.'
+                : 'Exibindo a carteira auditável desta unidade. Novos clientes cadastrados impactam a proporção de risco regional.'}
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAbrirModalNovoCliente}
+              style={{
+                borderRadius: 8,
+                fontWeight: 600,
+                backgroundColor: 'var(--brand-primary)',
+                boxShadow: 'none'
+              }}
+            >
+              Novo Cliente Regional
+            </Button>
+          </div>
+        </div>
+
+        {/* Filtros e Busca */}
+        <div className="comparativo-clients-controls-bar">
+          <Radio.Group
+            value={filtroTipoClientes}
+            onChange={(e) => setFiltroTipoClientes(e.target.value)}
+            size="small"
+            buttonStyle="solid"
+          >
+            <Radio.Button value="todos">
+              Todos ({todosClientes.filter((c) => selectedTenantId === 'todos' || c.tenantId === selectedTenantId).length})
+            </Radio.Button>
+            <Radio.Button value="novos">
+              ✨ Novos Adicionados ({todosClientes.filter((c) => (selectedTenantId === 'todos' || c.tenantId === selectedTenantId) && isClienteNovo(c)).length})
+            </Radio.Button>
+            <Radio.Button value="risco">
+              Risco / Crítico ({todosClientes.filter((c) => (selectedTenantId === 'todos' || c.tenantId === selectedTenantId) && (c.statusSaude === 'Risco' || c.statusSaude === 'Crítico')).length})
+            </Radio.Button>
+          </Radio.Group>
+
+          <Input.Search
+            placeholder="Buscar por cliente ou segmento..."
+            value={buscaCliente}
+            onChange={(e) => setBuscaCliente(e.target.value)}
+            allowClear
+            style={{ maxWidth: 280, width: '100%' }}
+            size="small"
+          />
+        </div>
+
+        {/* Grid de Cards dos Clientes */}
+        {clientesFiltrados.length === 0 ? (
+          <Empty
+            description={
+              <span>
+                Nenhum cliente encontrado com os filtros atuais.{' '}
+                {selectedTenantId !== 'todos' && 'Você pode adicionar um novo cliente nesta regional clicando no botão acima.'}
+              </span>
+            }
+            style={{ margin: '24px 0' }}
+          >
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAbrirModalNovoCliente}>
+              Cadastrar Cliente Agora
+            </Button>
+          </Empty>
+        ) : (
+          <div className="client-mini-card-grid">
+            {clientesFiltrados.map((cli) => {
+              const novo = isClienteNovo(cli);
+              const semTokens = getRiskSemanticTokens(cli.scoreSaudeAtual, themeTokens);
+              const corRegional = regionalColors[cli.tenantId] || themeTokens.brandPrimary;
+
+              return (
+                <article
+                  key={cli.id}
+                  className={`client-mini-card ${novo ? 'client-mini-card--novo' : ''}`}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span className="client-mini-code">{cli.id}</span>
+                        {novo && <span className="badge-novo-cliente">✨ Novo</span>}
+                      </div>
+                      <h4 className="client-mini-name">{cli.nome}</h4>
+                      <span className="client-mini-segment">{cli.segmento}</span>
+                    </div>
+
+                    <div className="client-mini-score-box">
+                      <span className="client-mini-score-val" style={{ color: semTokens.color }}>
+                        {cli.scoreSaudeAtual}
+                      </span>
+                      <span className="client-mini-score-sub">SCORE</span>
+                    </div>
+                  </div>
+
+                  <div className="client-mini-meta-row">
+                    <span className="client-mini-regional-badge">
+                      <span className="geo-dot" style={{ backgroundColor: corRegional }} />
+                      <span>{cli.unidadeNome?.replace('Unidade ', '')}</span>
+                    </span>
+
+                    <Tag
+                      color={
+                        cli.statusSaude === 'Saudável'
+                          ? 'success'
+                          : cli.statusSaude === 'Atenção'
+                          ? 'warning'
+                          : 'error'
+                      }
+                      style={{ margin: 0, borderRadius: 6, fontSize: 11 }}
+                    >
+                      {cli.statusSaude}
+                    </Tag>
+                  </div>
+
+                  <div className="client-mini-footer">
+                    <div>
+                      <span className="client-mini-finance-label">Ticket Mensal</span>
+                      <strong className="client-mini-finance-val">{cli.ticketMedioMensal}</strong>
+                    </div>
+
+                    {onNavigateTab && (
+                      <button
+                        type="button"
+                        className="client-mini-inspect-btn"
+                        onClick={() => {
+                          onSelectTenant(cli.tenantId);
+                          onNavigateTab('historico-clientes');
+                        }}
+                        title="Abrir linha do tempo detalhada deste cliente"
+                      >
+                        <span>Histórico</span>
+                        <ArrowRightOutlined />
+                      </button>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* MODAL DE CADASTRO DE NOVO CLIENTE */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <PlusOutlined style={{ color: 'var(--brand-primary)' }} />
+            <span>Cadastrar Novo Cliente na Regional</span>
+          </div>
+        }
+        open={modalNovoClienteOpen}
+        onCancel={() => setModalNovoClienteOpen(false)}
+        onOk={() => form.submit()}
+        okText="Salvar e Sincronizar Regional"
+        cancelText="Cancelar"
+        destroyOnHidden
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSalvarNovoCliente}
+          style={{ marginTop: 16 }}
+        >
+          <Form.Item
+            name="nome"
+            label="Razão Social / Nome da Empresa"
+            rules={[{ required: true, message: 'Por favor, informe a razão social do cliente.' }]}
+          >
+            <Input placeholder="Ex: Hipermercado Central da Serra Ltda" />
+          </Form.Item>
+
+          <Form.Item
+            name="tenantId"
+            label="Unidade Regional Vinculada"
+            rules={[{ required: true, message: 'Selecione a unidade regional.' }]}
+          >
+            <Select
+              options={tenants.map((t) => ({
+                label: `${t.nome} (${t.regiao} · Porte ${t.porte})`,
+                value: t.id
+              }))}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="segmento"
+            label="Segmento de Atuação Comercial"
+            rules={[{ required: true, message: 'Selecione o segmento.' }]}
+          >
+            <Select
+              options={[
+                { label: 'Supermercado Regional', value: 'Supermercado Regional' },
+                { label: 'Atacado Distribuidor', value: 'Atacado Distribuidor' },
+                { label: 'Rede Farmacêutica', value: 'Rede Farmacêutica' },
+                { label: 'Varejo Alimentício', value: 'Varejo Alimentício' },
+                { label: 'Distribuidora de Bebidas', value: 'Distribuidora de Bebidas' },
+                { label: 'Outros Segmentos', value: 'Outros Segmentos' }
+              ]}
+            />
+          </Form.Item>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Form.Item
+              name="ticketMedio"
+              label="Ticket Médio Mensal (R$)"
+              rules={[{ required: true, message: 'Informe o ticket médio.' }]}
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                formatter={(value) => `R$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}
+                parser={(value) => value.replace(/R\$\s?|(\.*)/g, '')}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="tempoContratoMeses"
+              label="Tempo de Contrato (Meses)"
+              rules={[{ required: true, message: 'Informe a duração do contrato.' }]}
+            >
+              <InputNumber min={1} max={180} style={{ width: '100%' }} />
+            </Form.Item>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Form.Item
+              name="scoreSaudeAtual"
+              label="Score de Saúde Inicial (0 a 100)"
+              rules={[{ required: true, message: 'Informe o score inicial.' }]}
+            >
+              <InputNumber min={0} max={100} style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item
+              name="statusSaude"
+              label="Classificação de Saúde"
+              rules={[{ required: true, message: 'Selecione o status de saúde.' }]}
+            >
+              <Select
+                options={[
+                  { label: 'Saudável (Score 80-100)', value: 'Saudável' },
+                  { label: 'Atenção (Score 60-79)', value: 'Atenção' },
+                  { label: 'Risco (Score 40-59)', value: 'Risco' },
+                  { label: 'Crítico (Score 0-39)', value: 'Crítico' }
+                ]}
+              />
+            </Form.Item>
+          </div>
+        </Form>
+      </Modal>
+
+      {/* 4. FUNDAMENTAÇÃO METODOLÓGICA COLAPSÁVEL (Inicia recolhida para manter minimalismo) */}
       <section className="flat-card" aria-labelledby="ux-rationale-heading">
         <div
           className="flat-card-header"

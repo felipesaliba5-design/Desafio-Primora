@@ -53,6 +53,17 @@ export default function NavigationBar({
     }))
   ];
 
+  const mobileTenantOptions = [
+    {
+      value: 'todos',
+      label: 'Todas as Regionais'
+    },
+    ...tenants.map((t) => ({
+      value: t.id,
+      label: t.nome.replace('Unidade ', '')
+    }))
+  ];
+
   return (
     <>
       {/* =========================================================================
@@ -160,7 +171,7 @@ export default function NavigationBar({
           <Select
             value={selectedTenantId}
             onChange={onTenantChange}
-            options={tenantOptions}
+            options={mobileTenantOptions}
             size="small"
             className="mobile-tenant-select"
             popupMatchSelectWidth={false}

@@ -293,6 +293,7 @@ export default function HistoricoClientes({
       scoreSaudeAtual: score,
       tempoContratoMeses: Number(values.tempoContratoMeses || 12),
       ticketMedioMensal: `R$ ${Number(values.ticketMedio || 35000).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      isNovo: true,
       historicoScore: [
         { periodo: 'Mai/2026', score: Math.max(10, score - 8) },
         { periodo: 'Jun/2026', score: Math.max(10, score - 6) },
@@ -305,7 +306,7 @@ export default function HistoricoClientes({
         {
           id: `EVT-${Date.now().toString().slice(-3)}`,
           data: new Date().toISOString(),
-          tipo: 'Cadastro de Conta (CRUD)',
+          tipo: 'Cadastro de Conta',
           categoria: 'comercial',
           descricao: `Conta ${values.nome} cadastrada no ecossistema comercial sob gestão da regional ${tenantObj ? tenantObj.nome : ''}.`
         }
@@ -357,7 +358,7 @@ export default function HistoricoClientes({
       {
         id: `EVT-${Date.now().toString().slice(-4)}`,
         data: new Date().toISOString(),
-        tipo: 'Atualização Cadastral (CRUD)',
+        tipo: 'Atualização Cadastral',
         categoria: 'comercial',
         descricao: `Dados cadastrais da conta atualizados: Segmento "${values.segmento}", Regional "${tenantObj?.nome || clienteSelecionado.unidadeNome}" e Score ${score} pts.`
       }
@@ -408,7 +409,7 @@ export default function HistoricoClientes({
       <div className="clientes-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
           <div>
-            <span className="flat-section-eyebrow">AUDITORIA DE CONTAS B2B · CRUD</span>
+            <span className="flat-section-eyebrow">AUDITORIA DE CONTAS B2B</span>
             <h2 className="flat-card-title" style={{ margin: 0 }}>Jornada e Monitoramento de Clientes</h2>
           </div>
           <Button
@@ -580,13 +581,10 @@ export default function HistoricoClientes({
       {/* Barra de Ações Superior do Módulo de Clientes */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
         <div>
-          <span className="flat-section-eyebrow">AUDITORIA DE CONTAS B2B · CRUD</span>
+          <span className="flat-section-eyebrow">AUDITORIA DE CONTAS B2B</span>
           <h2 className="flat-card-title" style={{ margin: 0 }}>Jornada e Monitoramento de Clientes</h2>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span className="geo-badge geo-badge--cyan">
-            CRUD Ativo (Criar, Ler, Editar, Excluir)
-          </span>
           <Button
             type="primary"
             icon={<UserAddOutlined />}
@@ -625,6 +623,9 @@ export default function HistoricoClientes({
                 <div className="client-tab-title-row">
                   <span className={`geo-dot ${st.dotClass}`} aria-hidden="true" />
                   <span>{c.nome}</span>
+                  {(c.isNovo || !['CLI-001', 'CLI-002', 'CLI-003'].includes(c.id)) && (
+                    <span className="badge-novo-cliente" style={{ fontSize: 9, padding: '1px 6px' }}>✨ Novo</span>
+                  )}
                 </div>
                 <span className="client-tab-subtitle">
                   {c.unidadeNome.replace('Unidade ', '')} · {c.segmento}
@@ -673,36 +674,6 @@ export default function HistoricoClientes({
                 {clienteSelecionado.statusSaude} ({clienteSelecionado.scoreSaudeAtual} pts)
               </span>
             </div>
-
-            <Space wrap>
-              <Button
-                icon={<EditOutlined />}
-                onClick={handleAbrirEdicao}
-              >
-                Editar Conta
-              </Button>
-
-              <Popconfirm
-                title="Excluir Conta B2B"
-                description={`Tem certeza de que deseja remover "${clienteSelecionado.nome}" da carteira?`}
-                onConfirm={handleExcluirCliente}
-                okText="Sim, excluir"
-                cancelText="Cancelar"
-                okButtonProps={{ danger: true }}
-              >
-                <Button danger icon={<DeleteOutlined />}>
-                  Excluir Conta
-                </Button>
-              </Popconfirm>
-
-              <Button
-                type="primary"
-                icon={<UserAddOutlined />}
-                onClick={() => setModalOpen(true)}
-              >
-                + Nova Conta
-              </Button>
-            </Space>
           </div>
 
           {/* 2. FAIXA CONTÍNUA DE DADOS CONTRATUAIS E FINANCEIROS DA CONTA */}
@@ -915,7 +886,7 @@ export default function HistoricoClientes({
             <section className="flat-card" aria-labelledby="timeline-heading">
               <div className="flat-card-header">
                 <div>
-                  <span className="flat-section-eyebrow">ANT DESIGN TIMELINE · SPRINT 2</span>
+                  <span className="flat-section-eyebrow">HISTÓRICO DE EVENTOS B2B</span>
                   <h2 id="timeline-heading" className="flat-card-title">
                     Histórico Cronológico de Eventos
                   </h2>
@@ -948,6 +919,41 @@ export default function HistoricoClientes({
                 </div>
               )}
             </section>
+          </div>
+
+          {/* 3. AÇÕES DE GESTÃO DA CONTA (FIM DA PÁGINA) */}
+          <div className="client-footer-actions-bar">
+            <div className="client-footer-actions-info">
+              <span className="client-footer-account-title">
+                Gerenciamento da Conta: <strong>{clienteSelecionado.nome}</strong>
+              </span>
+              <span className="client-footer-account-sub">
+                Código: {clienteSelecionado.id} · {clienteSelecionado.unidadeNome} · {clienteSelecionado.ticketMedioMensal}
+              </span>
+            </div>
+
+            <Space wrap size="middle">
+              <Button
+                icon={<EditOutlined />}
+                onClick={handleAbrirEdicao}
+                size="middle"
+              >
+                Editar Conta
+              </Button>
+
+              <Popconfirm
+                title="Excluir Conta B2B"
+                description={`Tem certeza de que deseja remover "${clienteSelecionado.nome}" da carteira?`}
+                onConfirm={handleExcluirCliente}
+                okText="Sim, excluir"
+                cancelText="Cancelar"
+                okButtonProps={{ danger: true }}
+              >
+                <Button danger icon={<DeleteOutlined />} size="middle">
+                  Excluir Conta
+                </Button>
+              </Popconfirm>
+            </Space>
           </div>
         </>
       )}
@@ -1056,7 +1062,7 @@ export default function HistoricoClientes({
               Editar Conta B2B: {clienteSelecionado?.nome || ''}
             </span>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 400 }}>
-              Atualização de cadastro, porte, regional e score de saúde (Operação UPDATE do CRUD)
+              Atualização de cadastro, porte, regional e score de saúde
             </div>
           </div>
         }
